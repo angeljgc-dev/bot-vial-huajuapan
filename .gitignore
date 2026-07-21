@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (contiene API keys)
+.env
+.env.local
+.env.*.local
+
+# Credenciales de sesión de WhatsApp (Baileys)
+auth/
+*session*
+creds.json
+pre-key-*.json
+app-state-sync-*.json
+sender-key-*.json
+
+# Base de datos
+data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

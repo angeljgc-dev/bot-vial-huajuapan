@@ -1,0 +1,26 @@
+{
+  "name": "wb-vial",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp para alertas viales en Huajuapan de León, Oaxaca",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@the-convocation/twitter-scraper": "^0.13.0",
+    "@whiskeysockets/baileys": "^6.7.18",
+    "axios": "^1.11.0",
+    "better-sqlite3": "^12.8.0",
+    "dotenv": "^16.5.0",
+    "groq-sdk": "^0.9.0",
+    "node-cron": "^3.0.3",
+    "pino": "^9.7.0",
+    "qrcode-terminal": "^0.12.0",
+    "rss-parser": "^3.13.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
