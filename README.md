@@ -2,24 +2,23 @@
 
 ![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-339933?logo=nodedotjs&logoColor=white)
 ![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-25D366?logo=whatsapp&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003B57?logo=sqlite&logoColor=white)
 ![Groq](https://img.shields.io/badge/LLM-Groq%20%C2%B7%20Llama%203.1%208B-F55036)
-![TomTom](https://img.shields.io/badge/Traffic-TomTom%20API-DF1B12)
-![Google Maps](https://img.shields.io/badge/Rutas-Google%20Maps%20API-4285F4?logo=googlemaps&logoColor=white)
-![License](https://img.shields.io/badge/licencia-MIT-blue)
+![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003B57?logo=sqlite&logoColor=white)
 
-Bot de WhatsApp que monitorea en tiempo real el estado vial de **Huajuapan de León, Oaxaca**: accidentes, bloqueos, calles cerradas, retenes, operativos, inundaciones, derrumbes y baches. Agrega información de medios locales, redes sociales y APIs de tráfico, la estructura con un LLM y la sirve por chat con sugerencias de calles alternativas.
+Bot de WhatsApp que monitorea en tiempo real el estado vial de Huajuapan de León, Oaxaca: accidentes, bloqueos, calles cerradas, retenes, operativos, inundaciones, derrumbes y baches. Junta información de medios locales, redes sociales y APIs de tráfico, la estructura con un LLM y la sirve por chat con sugerencias de calles alternativas.
+
+Huajuapan es mi ciudad y aquí un bloqueo o un retén te cambian la ruta en minutos, pero no hay un lugar donde consultarlo rápido. Este bot intenta juntar todo eso en un solo chat de WhatsApp.
 
 ## ¿Qué hace?
 
-- **Monitorea 3 tipos de fuentes de forma continua** (tareas programadas con `node-cron`):
-  - **RSS de medios locales** — Igavec Noticias, Mixteca Informa, Zona Roja y Oaxaca Vial y Noticias (cada 10–15 min).
-  - **Cuentas de Twitter/X** — @Igavec_Noticias, @OaxacaVialSi, @Bloqueos_Oaxaca y @ZonaRoja_Oaxaca vía scraper (cada 20 min, opcional).
-  - **TomTom Traffic API** — incidentes de tráfico en un radio de ~15 km alrededor del centro de Huajuapan (cada 10 min, opcional).
-- **Extrae incidentes con IA**: cada noticia/tweet pasa primero por un pre-filtro de palabras clave viales (sin costo) y, si es candidato, se envía a **Groq (Llama 3.1 8B Instant)** que devuelve JSON estructurado: tipo, calle, entre calles, severidad y descripción.
-- **Deduplica y expira**: los incidentes se guardan en **SQLite** con un hash MD5 de fuente + URL/título como clave única, y expiran automáticamente (TTL configurable, 6 h por defecto).
-- **Sugiere rutas alternativas**: con la **Google Maps API** (Geocoding + Directions) obtiene hasta 3 calles alternativas para rodear una vía bloqueada, con caché en memoria de 30 min.
-- **Responde por WhatsApp**: conexión vía **Baileys** (WhatsApp Web multi-dispositivo, login por código QR). Contesta a cualquier chat que le escriba; ignora sus propios mensajes y los estados.
+- Monitorea 3 tipos de fuentes de forma continua (tareas programadas con `node-cron`):
+  - RSS de medios locales: Igavec Noticias, Mixteca Informa, Zona Roja y Oaxaca Vial y Noticias (cada 10-15 min).
+  - Cuentas de Twitter/X (@Igavec_Noticias, @OaxacaVialSi, @Bloqueos_Oaxaca y @ZonaRoja_Oaxaca) vía scraper (cada 20 min, opcional).
+  - TomTom Traffic API: incidentes de tráfico en un radio de ~15 km alrededor del centro de Huajuapan (cada 10 min, opcional).
+- **Extrae incidentes con IA**: cada noticia o tweet pasa primero por un pre-filtro de palabras clave viales (sin costo) y, si es candidato, se manda a Groq (Llama 3.1 8B Instant), que devuelve JSON estructurado: tipo, calle, entre calles, severidad y descripción.
+- Deduplica y expira: los incidentes se guardan en SQLite con un hash MD5 de fuente más URL/título como clave única, y expiran solos (TTL configurable, 6 h por defecto).
+- **Sugiere rutas alternativas**: con la Google Maps API (Geocoding + Directions) saca hasta 3 calles alternativas para rodear una vía bloqueada, con caché en memoria de 30 min.
+- Responde por WhatsApp con Baileys (WhatsApp Web multi-dispositivo, login por código QR). Contesta a cualquier chat que le escriba e ignora sus propios mensajes y los estados.
 
 ## Comandos del bot
 
@@ -34,7 +33,7 @@ Bot de WhatsApp que monitorea en tiempo real el estado vial de **Huajuapan de Le
 | `calle [nombre]` | Busca incidentes en una vía específica |
 | `estado` | Resumen estadístico (activos por severidad) |
 
-También entiende frases naturales como *"¿qué está pasando?"*, *"¿cómo está el tráfico?"* o *"voy de... ¿hay algo en mi ruta?"*. Cada reporte incluye emoji por tipo y severidad, la fuente, hace cuánto ocurrió y —si hay API de Google Maps— las calles alternativas sugeridas.
+También entiende frases naturales como "¿qué está pasando?", "¿cómo está el tráfico?" o "voy de... ¿hay algo en mi ruta?". Cada reporte incluye un emoji por tipo y severidad, la fuente, hace cuánto ocurrió y, si está configurada la API de Google Maps, las calles alternativas sugeridas.
 
 ## Arquitectura
 
@@ -80,7 +79,7 @@ flowchart LR
 ## Estructura del proyecto
 
 ```
-wb-vial/
+bot-vial-huajuapan/
 ├── src/
 │   ├── index.js                 # Punto de entrada: conexión WhatsApp + arranque de monitores
 │   ├── config.js                # Feeds, cuentas, keywords, emojis y parámetros
@@ -97,9 +96,9 @@ wb-vial/
 │   │   └── routeService.js      # Calles alternativas (Google Maps) con caché
 │   └── database/
 │       └── db.js                # SQLite (better-sqlite3, WAL) y esquema
-├── auth/                        # 🔒 Credenciales de sesión de WhatsApp (no versionar)
-├── data/                        # 🔒 Base de datos SQLite (no versionar)
-├── logs/                        # 🔒 Logs de ejecución (no versionar)
+├── auth/                        # no versionar (sensible): sesión de WhatsApp
+├── data/                        # no versionar (sensible): base de datos SQLite
+├── logs/                        # no versionar (sensible): logs de ejecución
 ├── .env.example                 # Plantilla de variables de entorno
 └── package.json
 ```
@@ -108,7 +107,7 @@ wb-vial/
 
 - **Node.js ≥ 18**
 - Un número de WhatsApp para vincular el bot (como dispositivo adicional)
-- **API key de Groq** (gratuita en [console.groq.com](https://console.groq.com)) — **requerida**
+- **API key de Groq** (gratuita en [console.groq.com](https://console.groq.com)), requerida
 - Opcionales:
   - **TomTom API key** ([developer.tomtom.com](https://developer.tomtom.com), 2,500 req/día gratis)
   - **Google Maps API key** con Geocoding + Directions habilitadas (para calles alternativas)
@@ -117,7 +116,7 @@ wb-vial/
 ## Instalación
 
 ```bash
-git clone https://github.com/B0B1A6AE23/bot-vial-huajuapan.git
+git clone https://github.com/angeljgc-dev/bot-vial-huajuapan.git
 cd bot-vial-huajuapan
 npm install
 ```
@@ -166,7 +165,7 @@ En el primer arranque se mostrará un **código QR** en la terminal: escanéalo 
 
 ## Seguridad
 
-Las carpetas `auth/` (llaves de sesión de WhatsApp), `data/` (base SQLite) y `logs/`, junto con el archivo `.env`, contienen información sensible y **nunca deben versionarse** — ya están excluidas en `.gitignore`.
+Las carpetas `auth/` (llaves de sesión de WhatsApp), `data/` (base SQLite) y `logs/`, junto con el archivo `.env`, contienen información sensible y nunca deben versionarse. Ya están excluidas en `.gitignore`.
 
 ## Licencia
 
@@ -174,4 +173,4 @@ Código bajo licencia [MIT](LICENSE). Las fuentes de datos de terceros (feeds RS
 
 ## Autor
 
-**Ángel Josué García Cantero** — [@AngelJGC](https://github.com/AngelJGC)
+Ángel Josué García Canteros, [@angeljgc-dev](https://github.com/angeljgc-dev)
